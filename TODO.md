@@ -1,0 +1,5 @@
+ - taskfile
+ - sakura serverを触る
+ - config fileの整備
+ - 分析用スクリプト、自動インストール整備
+ - 
