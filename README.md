@@ -3,13 +3,13 @@
 ISUCON 当日用テンプレート。repo は各サーバーの `/home/isucon` に置き、`.gitignore` のホワイトリストで必要なものだけ追跡する。
 
 ```
-Makefile          deploy / analyze / score などの当日コマンド
-setup.sh          各サーバーで1回だけ実行 (alp, pt-query-digest 等の導入)
+Taskfile.yml      deploy / analyze / score などの当日コマンド (task --list で一覧)
+setup.sh          各サーバーで1回だけ実行 (alp, pt-query-digest, task 等の導入)
 ssh-hosts.sh      手元の Mac で実行。当日のIPを渡すと ~/.ssh/config に s1〜s3 を書く
 collect.sh        サーバーの状況 (スペック・サービス・nginx 設定・テーブル定義) を s1/collect.md にまとめる
 alp.yml           alp の設定。当日 matching_groups を書く
-scores.md         make score で自動追記するスコア記録
-s1/ s2/ s3/       サーバー別 /etc 設定 (make get-conf で取り込む)
+scores.md         task score で自動追記するスコア記録
+s1/ s2/ s3/       サーバー別 /etc 設定 (task get-conf で取り込む)
 snippets/         nginx / MySQL / sysctl / Go のコピペ部品
 ```
 
@@ -26,10 +26,10 @@ snippets/         nginx / MySQL / sysctl / Go のコピペ部品
 ### 1台目 (s1)
 ```bash
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
-make setup SERVER_ID=s1
-make get-conf                    # /etc/nginx, /etc/mysql を s1/etc に取り込む
-make collect                     # s1/collect.md にサーバーの状況をまとめる
-vi Makefile                      # APP_DIR / APP_BIN / APP_SERVICE を問題に合わせる
+./setup.sh s1
+task get-conf                    # /etc/nginx, /etc/mysql を s1/etc に取り込む
+task collect                     # s1/collect.md にサーバーの状況をまとめる
+vi Taskfile.yml                  # APP_DIR / APP_BIN / APP_SERVICE を問題に合わせる
 vi .gitignore                    # ビルド成果物と巨大ファイルを追記
 git add -A && git commit -m init && git push -u origin main
 mysqldump -uisucon -p --all-databases | gzip > ~/backup.sql.gz   # 壊したとき用
@@ -38,18 +38,18 @@ mysqldump -uisucon -p --all-databases | gzip > ~/backup.sql.gz   # 壊したと�
 ### 2台目以降 (s2, s3)
 ```bash
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main && git branch -u origin/main
-make setup SERVER_ID=s2 && make get-conf && make collect && git add s2 && git commit -m "s2 conf" && git push
+./setup.sh s2 && task get-conf && task collect && git add s2 && git commit -m "s2 conf" && git push
 ```
 
 ### 計測を入れる (最初の30分)
 - `snippets/nginx.conf` の JSON ログを `s1/etc/nginx/nginx.conf` に入れる
 - `snippets/mysql-isu.cnf` を `s1/etc/mysql/mysql.conf.d/zz-isu.cnf` として置く
 - アプリの main で `StartPprof()` を呼ぶ (`snippets/go/pprof.go`)
-- `make deploy` → ベンチ → `make analyze`
+- `task deploy` → ベンチ → `task analyze`
 
 ### ループ
 ```
-変更を1つ → push → (対象サーバーで) make deploy → ベンチ → make analyze → make score S=<点数> M="何をしたか"
+変更を1つ → push → (対象サーバーで) task deploy → ベンチ → task analyze → task score S=<点数> M="何をしたか"
 ```
 スコアが下がったら原因を探さず `git revert`。
 

@@ -69,13 +69,13 @@ ls -la ~
 - [ ] リバースプロキシが nginx かどうか（h2o や envoy の回もある）
 - [ ] アプリが listen しているポート（`ss -tlnp` の結果）
 
-Go 版のサービスの中身を見て、Makefile に書く値を決めます。
+Go 版のサービスの中身を見て、Taskfile.yml に書く値を決めます。
 
 ```
 systemctl cat isu-go.service
 ```
 
-- `WorkingDirectory=` → Makefile の `APP_DIR`
+- `WorkingDirectory=` → Taskfile.yml の `APP_DIR`
 - `ExecStart=` のバイナリ名 → `APP_BIN`
 - `EnvironmentFile=` → DB のパスワードが書いてあるファイル（次の手順で使う）
 
@@ -93,19 +93,19 @@ du -sh ~/* ~/webapp/* 2>/dev/null | sort -h | tail -15
 
 ```
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
-make setup SERVER_ID=s1
-make get-conf
-make collect
+./setup.sh s1
+task get-conf
+task collect
 ```
 
-- `make setup` は alp と pt-query-digest などを入れ、`~/.server_id` に `s1` を書きます。
-- `make get-conf` は `/etc/nginx` と `/etc/mysql` を `s1/etc/` にコピーします。
-- `make collect` は、スペック・サービス・ポート・nginx の実効設定・MySQL の主要変数・テーブルの件数と定義を `s1/collect.md` にまとめます。手順2で手で見た内容もここに入るので、Claude にはこのファイルを読ませます。パスワードらしき値は伏せ字になります。
+- `./setup.sh s1` は alp・pt-query-digest・task などを入れ、`~/.server_id` に `s1` を書きます。
+- `task get-conf` は `/etc/nginx` と `/etc/mysql` を `s1/etc/` にコピーします。
+- `task collect` は、スペック・サービス・ポート・nginx の実効設定・MySQL の主要変数・テーブルの件数と定義を `s1/collect.md` にまとめます。手順2で手で見た内容もここに入るので、Claude にはこのファイルを読ませます。パスワードらしき値は伏せ字になります。
 
-Makefile の先頭3行を、手順2で調べた値に書き換えます。
+Taskfile.yml の先頭3つの変数を、手順2で調べた値に書き換えます。
 
 ```
-vi Makefile
+vi Taskfile.yml
 ```
 
 `.gitignore` の末尾に、Go のバイナリ名と、手順3の `du` で見つけた巨大なファイルを足します。
@@ -124,7 +124,7 @@ git add -A && git commit -m init && git push -u origin main
 ビルドできることも確かめます。
 
 ```
-make build
+task build
 ```
 
 最後に DB のバックアップを取ります。パスワードは `EnvironmentFile` に書いてあるものを使います。
@@ -144,7 +144,7 @@ mysqldump -uisucon -p --single-transaction --all-databases | gzip > ~/backup.sql
 
 ```
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main && git branch -u origin/main
-make setup SERVER_ID=s2 && make get-conf && make collect && git add s2 && git commit -m "s2 conf" && git push
+./setup.sh s2 && task get-conf && task collect && git add s2 && git commit -m "s2 conf" && git push
 ```
 
 s3 でも `s2` を `s3` に変えて同じことをします。
@@ -165,7 +165,7 @@ sudo systemctl enable --now isu-go.service
 結果のスコアを記録します。
 
 ```
-make score S=<点数> M="初期 Go"
+task score S=<点数> M="初期 Go"
 ```
 
 ---
@@ -212,10 +212,10 @@ vi webapp/go/main.go
 
 ```
 git add -A && git commit -m "計測を入れる" && git push
-make deploy
+task deploy
 ```
 
-`make deploy` は、設定のコピー → ビルド → 再起動（nginx は先に `nginx -t` で文法チェック）→ ログを空にする、までを行います。
+`task deploy` は、設定のコピー → ビルド → 再起動（nginx は先に `nginx -t` で文法チェック）→ ログを空にする、までを行います。
 
 計測が動いているかを3つとも確認します。
 
@@ -231,7 +231,7 @@ curl -s localhost:6060/debug/pprof/ | head -3
 
 **つまずきやすい所**
 
-- `make deploy` が `nginx -t` で止まる: `log_format` を `http {` の外に書いている。
+- `task deploy` が `nginx -t` で止まる: `log_format` を `http {` の外に書いている。
 - MySQL が起動しない: `sudo journalctl -u mysql -n 30` で原因を見る。`/var/log/mysql` が無いか、権限が無いことが多い。
 - pprof が返らない: `StartPprof()` を呼ぶ前に `main()` がブロックしている（`e.Start(...)` より前に書く）。
 
@@ -248,27 +248,27 @@ export DISCORD_WEBHOOK='https://discord.com/api/webhooks/...'
 **ベンチの直前に**、別のターミナルで pprof の取得を始めます。60秒間 CPU プロファイルを取ります。
 
 ```
-make pprof
+task pprof
 ```
 
 ポータルでベンチを回し、終わったら集計します。
 
 ```
-make analyze
-make score S=<点数> M="計測あり"
+task analyze
+task score S=<点数> M="計測あり"
 ```
 
-`make analyze` は、alp と pt-query-digest の結果をターミナルに出し、`/tmp/alp.txt` と `/tmp/slow.txt` を Discord に送ります。
+`task analyze` は、alp と pt-query-digest の結果をターミナルに出し、`/tmp/alp.txt` と `/tmp/slow.txt` を Discord に送ります。
 pprof の結果は、手元のブラウザで http://localhost:1080 を開くと見られます（`~/.ssh/config` の `LocalForward` を使う）。
 
 ### alp の集計を見やすくする
 
 `/api/user/123` のように ID を含む URL が別々の行に分かれていたら、`alp.yml` の `matching_groups` に正規表現を書きます。
-ログは次の `make deploy` まで残っているので、ベンチを回し直さずに集計だけやり直せます。
+ログは次の `task deploy` まで残っているので、ベンチを回し直さずに集計だけやり直せます。
 
 ```
 vi alp.yml
-make alp
+task alp
 ```
 
 ### 結果の読み方
@@ -291,10 +291,10 @@ make alp
 
 ## 10:45 時点のチェックリスト
 
-- [ ] 3台ともリポジトリ管理になっていて、`make deploy` が通る
+- [ ] 3台ともリポジトリ管理になっていて、`task deploy` が通る
 - [ ] DB のバックアップ（`~/backup.sql.gz`）がある
 - [ ] Go 版でベンチが通り、初期スコアを `scores.md` に記録した
 - [ ] アクセスログが JSON で1本だけ出ている
 - [ ] スロークエリログが全件出ている
 - [ ] pprof が取れる
-- [ ] `make analyze` の結果をチームで見て、担当を決めた
+- [ ] `task analyze` の結果をチームで見て、担当を決めた

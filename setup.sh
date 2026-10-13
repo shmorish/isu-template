@@ -9,12 +9,14 @@ sudo apt-get update -qq
 sudo apt-get install -y -qq percona-toolkit htop dstat unzip git
 
 ALP_VERSION=v1.0.21
+TASK_VERSION=v3.53.1
 case "$(uname -m)" in
   x86_64) ARCH=amd64 ;;
   aarch64) ARCH=arm64 ;;
   *) echo "unsupported arch"; exit 1 ;;
 esac
 curl -sSL "https://github.com/tkuchiki/alp/releases/download/${ALP_VERSION}/alp_linux_${ARCH}.tar.gz" | sudo tar xz -C /usr/local/bin alp
+curl -sSL "https://github.com/go-task/task/releases/download/${TASK_VERSION}/task_linux_${ARCH}.tar.gz" | sudo tar xz -C /usr/local/bin task
 
 git config --global user.name  "isucon-${SERVER_ID}"
 git config --global user.email "isucon@example.com"

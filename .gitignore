@@ -1,7 +1,7 @@
 # repo は /home/isucon に置く。必要なものだけホワイトリストで追跡する
 /*
 !/.gitignore
-!/Makefile
+!/Taskfile.yml
 !/setup.sh
 !/collect.sh
 !/ssh-hosts.sh
