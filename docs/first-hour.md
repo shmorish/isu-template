@@ -98,7 +98,7 @@ task get-conf
 task collect
 ```
 
-- `./setup.sh s1` は alp・pt-query-digest・task などを入れ、`~/.server_id` に `s1` を書きます。
+- `./setup.sh s1` は alp・slp・pt-query-digest・task などを入れ、`~/.server_id` に `s1` を書きます。
 - `task get-conf` は `/etc/nginx` と `/etc/mysql` を `s1/etc/` にコピーします。
 - `task collect` は、スペック・サービス・ポート・nginx の実効設定・MySQL の主要変数・テーブルの件数と定義を `s1/collect.md` にまとめます。手順2で手で見た内容もここに入るので、Claude にはこのファイルを読ませます。パスワードらしき値は伏せ字になります。
 
@@ -258,7 +258,7 @@ task analyze
 task score S=<点数> M="計測あり"
 ```
 
-`task analyze` は、alp と pt-query-digest の結果をターミナルに出し、`/tmp/alp.txt` と `/tmp/slow.txt` を Discord に送ります。
+`task analyze` は、alp・slp・pt-query-digest の結果をターミナルに出し、`/tmp/alp.txt`・`/tmp/slp.txt`・`/tmp/slow.txt` を Discord に送ります。
 pprof の結果は、手元のブラウザで http://localhost:1080 を開くと見られます（`~/.ssh/config` の `LocalForward` を使う）。
 
 ### alp の集計を見やすくする
@@ -274,7 +274,8 @@ task alp
 ### 結果の読み方
 
 - **alp**: `SUM`（合計時間）の大きい順に並んでいます。上から5つが改善の候補です。`COUNT` が多いのに `AVG` が小さいものは、キャッシュや静的配信の候補です。
-- **pt-query-digest**: 先頭の `Profile` 表が、合計時間の大きい順のクエリ一覧です。`Rank 1〜5` の `Response time` の割合と、`Calls`（呼ばれた回数）を見ます。回数が異常に多いものは N+1 の可能性が高いです。
+- **slp**: クエリを合計時間の大きい順に1行ずつ並べた表です。まずここで上位5つを見ます。`AVG(ROWSEXAMINED)` が `AVG(ROWSSENT)` より桁違いに大きいクエリは、インデックスが効いておらず全件を読んでいる可能性が高いです。`COUNT` が異常に多いものは N+1 の可能性が高いです。
+- **pt-query-digest**: slp で気になったクエリの詳細を見るときに使います。先頭の `Profile` 表の `Rank` から該当クエリを探すと、実際のクエリ例（そのまま `EXPLAIN` に使える）と対象テーブル名が載っています。
 - **pprof**: `Top` 表示で、アプリの CPU を使っている関数を確認します。DB 待ちが長い場合は、ここではあまり目立ちません。
 
 ### チームで共有する（10:45）
@@ -282,7 +283,7 @@ task alp
 3人で次の3点を確認し、担当を割り振ります。
 
 1. alp の上位5エンドポイント
-2. pt-query-digest の上位5クエリと、それを呼んでいるエンドポイントの対応
+2. slp の上位5クエリと、それを呼んでいるエンドポイントの対応
 3. C がマニュアルから見つけたスコア計算式と、使えそうな猶予・抜け道
 
 ここから先は README の「ループ」の手順で改善を繰り返します。
