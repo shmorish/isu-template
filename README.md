@@ -21,7 +21,7 @@ snippets/         nginx / MySQL / sysctl / Go のコピペ部品
 
 ### 1台目 (s1)
 ```bash
-cd ~ && git init && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
+cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
 make setup SERVER_ID=s1
 make get-conf                    # /etc/nginx, /etc/mysql を s1/etc に取り込む
 vi Makefile                      # APP_DIR / APP_BIN / APP_SERVICE を問題に合わせる
@@ -32,7 +32,7 @@ mysqldump -uisucon -p --all-databases | gzip > ~/backup.sql.gz   # 壊したと�
 
 ### 2台目以降 (s2, s3)
 ```bash
-cd ~ && git init && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main
+cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main && git branch -u origin/main
 make setup SERVER_ID=s2 && make get-conf && git add s2 && git commit -m "s2 conf" && git push
 ```
 
