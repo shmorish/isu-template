@@ -19,6 +19,8 @@ snippets/         nginx / MySQL / sysctl / Go のコピペ部品
 
 ## 当日の手順
 
+最初の計測（10:45頃）までの詳しい手順と確認コマンドは [docs/first-hour.md](docs/first-hour.md) を参照。
+
 ### 1台目 (s1)
 ```bash
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
