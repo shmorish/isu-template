@@ -4,6 +4,7 @@
 !/Makefile
 !/setup.sh
 !/collect.sh
+!/ssh-hosts.sh
 !/alp.yml
 !/README.md
 !/TODO.md

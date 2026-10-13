@@ -10,27 +10,22 @@
 
 ## 0. 前日までに手元で準備しておくもの
 
-手元の `~/.ssh/config` に3台分を書いておき、当日は IP だけ差し替えます。
-`ForwardAgent yes` で、サーバー上から手元の鍵を使って GitHub に push できます。
+1. 鍵がなければ作る（`ssh-keygen -t ed25519`、質問は全部 Enter）
+2. 公開鍵を GitHub に登録する（`pbcopy < ~/.ssh/id_ed25519.pub` → https://github.com/settings/keys に貼る）。https://github.com/<ユーザー名>.keys に表示されれば登録済み
+3. 手元で `ssh -T git@github.com` を実行し、`Hi <ユーザー名>!` と出ることを確認する
+4. Discord の Webhook URL を手元のメモに控えておく（リポジトリには書かない）
+
+当日は、ポータルに出た IP を渡して `ssh-hosts.sh` を実行するだけで `~/.ssh/config` が用意されます。
 
 ```
-Host s1
-  HostName <IP>
-  User isucon
-  ForwardAgent yes
-  LocalForward 1080 localhost:1080
-Host s2
-  HostName <IP>
-  User isucon
-  ForwardAgent yes
-Host s3
-  HostName <IP>
-  User isucon
-  ForwardAgent yes
+./ssh-hosts.sh <s1のIP> <s2のIP> <s3のIP>
 ```
 
-- `LocalForward 1080` は、s1 の pprof をブラウザで見るための設定です。
-- Discord の Webhook URL を手元のメモに控えておきます（リポジトリには書かない）。
+- `~/.ssh/config` の末尾に s1〜s3 の設定を書きます。2回目以降は前回の分を入れ替えます。既存の設定には触りません。
+- 実行のたびに `~/.ssh/config.bak-isucon` にバックアップを取ります。
+- エージェント転送（サーバー上の `git push` で手元の鍵を使う）、s1 の pprof 用ポート転送、接続の使い回しを設定します。
+- ユーザー名が `isucon` 以外の回は `ISU_USER=ubuntu ./ssh-hosts.sh ...` のように指定します。
+- `~/.ssh/config` を TextEdit で開いて編集しないでください。中身が消えて保存された例があります。
 
 ---
 
