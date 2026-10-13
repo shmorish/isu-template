@@ -8,7 +8,6 @@ setup.sh          各サーバーで1回だけ実行 (alp, pt-query-digest, task
 ssh-hosts.sh      手元の Mac で実行。当日のIPを渡すと ~/.ssh/config に s1〜s3 を書く
 collect.sh        サーバーの状況 (スペック・サービス・nginx 設定・テーブル定義) を s1/collect.md にまとめる
 alp.yml           alp の設定。当日 matching_groups を書く
-scores.md         task score で自動追記するスコア記録
 s1/ s2/ s3/       サーバー別 /etc 設定 (task get-conf で取り込む)
 snippets/         nginx / MySQL / sysctl / Go のコピペ部品
 ```

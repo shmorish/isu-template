@@ -104,10 +104,13 @@ tasks:
         curl -s -F "content={{.SERVER_ID}} $(git log -1 --format='%h %s')" $files "$DISCORD_WEBHOOK" >/dev/null
 
   score:
-    desc: 'task score S=12345 M="メモ" → scores.md に記録してコミット'
+    desc: 'ポータルで結果を見てから: task score S=12345 M="メモ" → ~/scores.log に追記して Discord に通知'
     requires:
       vars: [S]
     cmds:
+      # git には入れない (サーバーから push すると他の人の push と衝突するため)
       - |
-        echo "| $(date +%H:%M) | {{.S}} | $(git log -1 --format='%h %s') | {{.M}} |" >> scores.md
-        git add scores.md && git commit -qm "score {{.S}}" && git push -q
+        line="$(date +%H:%M) {{.SERVER_ID}} score={{.S}} $(git log -1 --format='%h %s') {{.M}}"
+        echo "$line" >> ~/scores.log
+        echo "$line"
+        if [ -n "${DISCORD_WEBHOOK:-}" ]; then curl -s -F "content=$line" "$DISCORD_WEBHOOK" >/dev/null; fi

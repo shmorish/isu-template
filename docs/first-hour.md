@@ -293,7 +293,7 @@ task alp
 
 - [ ] 3台ともリポジトリ管理になっていて、`task deploy` が通る
 - [ ] DB のバックアップ（`~/backup.sql.gz`）がある
-- [ ] Go 版でベンチが通り、初期スコアを `scores.md` に記録した
+- [ ] Go 版でベンチが通り、初期スコアを `task score` で記録した（`~/scores.log` と Discord に残る）
 - [ ] アクセスログが JSON で1本だけ出ている
 - [ ] スロークエリログが全件出ている
 - [ ] pprof が取れる
