@@ -5,6 +5,7 @@ ISUCON 当日用テンプレート。repo は各サーバーの `/home/isucon` �
 ```
 Makefile          deploy / analyze / score などの当日コマンド
 setup.sh          各サーバーで1回だけ実行 (alp, pt-query-digest 等の導入)
+collect.sh        サーバーの状況 (スペック・サービス・nginx 設定・テーブル定義) を s1/collect.md にまとめる
 alp.yml           alp の設定。当日 matching_groups を書く
 scores.md         make score で自動追記するスコア記録
 s1/ s2/ s3/       サーバー別 /etc 設定 (make get-conf で取り込む)
@@ -26,6 +27,7 @@ snippets/         nginx / MySQL / sysctl / Go のコピペ部品
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
 make setup SERVER_ID=s1
 make get-conf                    # /etc/nginx, /etc/mysql を s1/etc に取り込む
+make collect                     # s1/collect.md にサーバーの状況をまとめる
 vi Makefile                      # APP_DIR / APP_BIN / APP_SERVICE を問題に合わせる
 vi .gitignore                    # ビルド成果物と巨大ファイルを追記
 git add -A && git commit -m init && git push -u origin main
@@ -35,7 +37,7 @@ mysqldump -uisucon -p --all-databases | gzip > ~/backup.sql.gz   # 壊したと�
 ### 2台目以降 (s2, s3)
 ```bash
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main && git branch -u origin/main
-make setup SERVER_ID=s2 && make get-conf && git add s2 && git commit -m "s2 conf" && git push
+make setup SERVER_ID=s2 && make get-conf && make collect && git add s2 && git commit -m "s2 conf" && git push
 ```
 
 ### 計測を入れる (最初の30分)

@@ -100,10 +100,12 @@ du -sh ~/* ~/webapp/* 2>/dev/null | sort -h | tail -15
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
 make setup SERVER_ID=s1
 make get-conf
+make collect
 ```
 
 - `make setup` は alp と pt-query-digest などを入れ、`~/.server_id` に `s1` を書きます。
 - `make get-conf` は `/etc/nginx` と `/etc/mysql` を `s1/etc/` にコピーします。
+- `make collect` は、スペック・サービス・ポート・nginx の実効設定・MySQL の主要変数・テーブルの件数と定義を `s1/collect.md` にまとめます。手順2で手で見た内容もここに入るので、Claude にはこのファイルを読ませます。パスワードらしき値は伏せ字になります。
 
 Makefile の先頭3行を、手順2で調べた値に書き換えます。
 
@@ -147,7 +149,7 @@ mysqldump -uisucon -p --single-transaction --all-databases | gzip > ~/backup.sql
 
 ```
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main && git branch -u origin/main
-make setup SERVER_ID=s2 && make get-conf && git add s2 && git commit -m "s2 conf" && git push
+make setup SERVER_ID=s2 && make get-conf && make collect && git add s2 && git commit -m "s2 conf" && git push
 ```
 
 s3 でも `s2` を `s3` に変えて同じことをします。

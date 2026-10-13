@@ -9,10 +9,13 @@ NGINX_LOG := /var/log/nginx/access.log
 SLOW_LOG  := /var/log/mysql/mysql-slow.log
 SERVICES  := nginx mysql $(APP_SERVICE)
 
-.PHONY: setup get-conf deploy deploy-conf build restart bench-prep analyze alp slow pprof notify score
+.PHONY: setup collect get-conf deploy deploy-conf build restart bench-prep analyze alp slow pprof notify score
 
 setup: ## 各サーバーで1回: make setup SERVER_ID=s1
 	./setup.sh $(SERVER_ID)
+
+collect: ## サーバーの状況を $(SERVER_ID)/collect.md にまとめる (Claude に読ませる用)
+	./collect.sh $(SERVER_ID)
 
 get-conf: ## サーバーの /etc 設定を repo に取り込む
 	@test -n "$(SERVER_ID)" || (echo "SERVER_ID 未設定"; exit 1)

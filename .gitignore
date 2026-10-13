@@ -3,6 +3,7 @@
 !/.gitignore
 !/Makefile
 !/setup.sh
+!/collect.sh
 !/alp.yml
 !/README.md
 !/TODO.md
