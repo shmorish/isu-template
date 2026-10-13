@@ -20,9 +20,9 @@ tasks:
     desc: サーバーの状況を <SERVER_ID>/collect.md にまとめる (Claude に読ませる用)
     preconditions: &need_server_id
       - sh: test -n "{{.SERVER_ID}}"
-        msg: "SERVER_ID 未設定 (先に ./setup.sh s1)"
+        msg: "SERVER_ID 未設定 (先に ./scripts/setup.sh s1)"
     cmds:
-      - ./collect.sh {{.SERVER_ID}}
+      - ./scripts/collect.sh {{.SERVER_ID}}
 
   get-conf:
     desc: サーバーの /etc 設定を repo に取り込む
@@ -82,15 +82,12 @@ tasks:
   alp:
     desc: アクセスログをエンドポイントごとに合計時間順で一覧
     cmds:
-      - sudo alp json --file {{.NGINX_LOG}} --config alp.yml | tee /tmp/alp.txt
+      - sudo alp json --file {{.NGINX_LOG}} --config scripts/alp.yml | tee /tmp/alp.txt
 
   slp:
     desc: スロークエリを合計時間順に一覧 (rows examined が rows sent より極端に多いものはインデックス候補)
     cmds:
-      - >-
-        sudo slp my --file {{.SLOW_LOG}} --sort sum-query-time -r --bundle-where-in --bundle-values --limit 30
-        -o count,query,sum-query-time,avg-query-time,max-query-time,avg-rows-examined,avg-rows-sent
-        | tee /tmp/slp.txt
+      - sudo slp my --config scripts/slp.yml --file {{.SLOW_LOG}} | tee /tmp/slp.txt
 
   slow:
     desc: pt-query-digest の詳細 (EXPLAIN 用のクエリ例やテーブル名も出る)

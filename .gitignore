@@ -2,10 +2,7 @@
 /*
 !/.gitignore
 !/Taskfile.yml
-!/setup.sh
-!/collect.sh
-!/ssh-hosts.sh
-!/alp.yml
+!/scripts/
 !/README.md
 !/TODO.md
 !/snippets/

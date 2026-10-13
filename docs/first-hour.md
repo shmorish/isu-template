@@ -15,16 +15,16 @@
 3. 手元で `ssh -T git@github.com` を実行し、`Hi <ユーザー名>!` と出ることを確認する
 4. Discord の Webhook URL を手元のメモに控えておく（リポジトリには書かない）
 
-当日は、ポータルに出た IP を渡して `ssh-hosts.sh` を実行するだけで `~/.ssh/config` が用意されます。
+当日は、ポータルに出た IP を渡して `scripts/ssh-hosts.sh` を実行するだけで `~/.ssh/config` が用意されます。
 
 ```
-./ssh-hosts.sh <s1のIP> <s2のIP> <s3のIP>
+./scripts/ssh-hosts.sh <s1のIP> <s2のIP> <s3のIP>
 ```
 
 - `~/.ssh/config` の末尾に s1〜s3 の設定を書きます。2回目以降は前回の分を入れ替えます。既存の設定には触りません。
 - 実行のたびに `~/.ssh/config.bak-isucon` にバックアップを取ります。
 - エージェント転送（サーバー上の `git push` で手元の鍵を使う）、s1 の pprof 用ポート転送、接続の使い回しを設定します。
-- ユーザー名が `isucon` 以外の回は `ISU_USER=ubuntu ./ssh-hosts.sh ...` のように指定します。
+- ユーザー名が `isucon` 以外の回は `ISU_USER=ubuntu ./scripts/ssh-hosts.sh ...` のように指定します。
 - `~/.ssh/config` を TextEdit で開いて編集しないでください。中身が消えて保存された例があります。
 
 ---
@@ -93,12 +93,12 @@ du -sh ~/* ~/webapp/* 2>/dev/null | sort -h | tail -15
 
 ```
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
-./setup.sh s1
+./scripts/setup.sh s1
 task get-conf
 task collect
 ```
 
-- `./setup.sh s1` は alp・slp・pt-query-digest・task などを入れ、`~/.server_id` に `s1` を書きます。
+- `./scripts/setup.sh s1` は alp・slp・pt-query-digest・task などを入れ、`~/.server_id` に `s1` を書きます。
 - `task get-conf` は `/etc/nginx` と `/etc/mysql` を `s1/etc/` にコピーします。
 - `task collect` は、スペック・サービス・ポート・nginx の実効設定・MySQL の主要変数・テーブルの件数と定義を `s1/collect.md` にまとめます。手順2で手で見た内容もここに入るので、Claude にはこのファイルを読ませます。パスワードらしき値は伏せ字になります。
 
@@ -144,7 +144,7 @@ mysqldump -uisucon -p --single-transaction --all-databases | gzip > ~/backup.sql
 
 ```
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main && git branch -u origin/main
-./setup.sh s2 && task get-conf && task collect && git add s2 && git commit -m "s2 conf" && git push
+./scripts/setup.sh s2 && task get-conf && task collect && git add s2 && git commit -m "s2 conf" && git push
 ```
 
 s3 でも `s2` を `s3` に変えて同じことをします。
@@ -263,11 +263,11 @@ pprof の結果は、手元のブラウザで http://localhost:1080 を開くと
 
 ### alp の集計を見やすくする
 
-`/api/user/123` のように ID を含む URL が別々の行に分かれていたら、`alp.yml` の `matching_groups` に正規表現を書きます。
+`/api/user/123` のように ID を含む URL が別々の行に分かれていたら、`scripts/alp.yml` の `matching_groups` に正規表現を書きます。
 ログは次の `task deploy` まで残っているので、ベンチを回し直さずに集計だけやり直せます。
 
 ```
-vi alp.yml
+vi scripts/alp.yml
 task alp
 ```
 

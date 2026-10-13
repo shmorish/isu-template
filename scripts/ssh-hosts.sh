@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# 手元の Mac で実行: ./ssh-hosts.sh <s1のIP> <s2のIP> <s3のIP>
+# 手元の Mac で実行: ./scripts/ssh-hosts.sh <s1のIP> <s2のIP> <s3のIP>
 # ~/.ssh/config の ISUCON ブロックを作り直す (無ければ末尾に追加)。台数は引数の数で決まる。
-# ユーザー名を変えるとき: ISU_USER=ubuntu ./ssh-hosts.sh ...
+# ユーザー名を変えるとき: ISU_USER=ubuntu ./scripts/ssh-hosts.sh ...
 set -euo pipefail
 
 [ $# -ge 1 ] || { echo "usage: $0 <s1のIP> [s2のIP] [s3のIP] ..."; exit 1; }

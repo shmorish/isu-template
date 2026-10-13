@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# サーバーの状況を1ファイルにまとめる: ./collect.sh → <SERVER_ID>/collect.md
+# サーバーの状況を1ファイルにまとめる: ./scripts/collect.sh → <SERVER_ID>/collect.md
 # 失敗したコマンドは飛ばして続ける (set -e しない)
 set -u
 
 SERVER_ID=${1:-$(cat ~/.server_id 2>/dev/null || hostname -s)}
-OUT="$(dirname "$0")/${SERVER_ID}/collect.md"
+OUT="$(dirname "$0")/../${SERVER_ID}/collect.md"
 mkdir -p "$(dirname "$OUT")"
 
 # パスワードやトークンらしき値を伏せる

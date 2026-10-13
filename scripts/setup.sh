@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# 各サーバーで1回: ./setup.sh s1
+# 各サーバーで1回: ./scripts/setup.sh s1
 set -euo pipefail
 
-SERVER_ID=${1:?usage: ./setup.sh s1}
+SERVER_ID=${1:?usage: ./scripts/setup.sh s1}
 echo "$SERVER_ID" > ~/.server_id
 
 sudo apt-get update -qq

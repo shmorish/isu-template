@@ -3,13 +3,15 @@
 ISUCON 当日用テンプレート。repo は各サーバーの `/home/isucon` に置き、`.gitignore` のホワイトリストで必要なものだけ追跡する。
 
 ```
-Taskfile.yml      deploy / analyze / score などの当日コマンド (task --list で一覧)
-setup.sh          各サーバーで1回だけ実行 (alp, slp, pt-query-digest, task 等の導入)
-ssh-hosts.sh      手元の Mac で実行。当日のIPを渡すと ~/.ssh/config に s1〜s3 を書く
-collect.sh        サーバーの状況 (スペック・サービス・nginx 設定・テーブル定義) を s1/collect.md にまとめる
-alp.yml           alp の設定。当日 matching_groups を書く
-s1/ s2/ s3/       サーバー別 /etc 設定 (task get-conf で取り込む)
-snippets/         nginx / MySQL / sysctl / Go のコピペ部品
+Taskfile.yml          deploy / analyze / score などの当日コマンド (task --list で一覧)
+scripts/setup.sh      各サーバーで1回だけ実行 (alp, slp, pt-query-digest, task 等の導入)
+scripts/collect.sh    サーバーの状況 (スペック・サービス・nginx 設定・テーブル定義) を s1/collect.md にまとめる
+scripts/ssh-hosts.sh  手元の Mac で実行。当日のIPを渡すと ~/.ssh/config に s1〜s3 を書く
+scripts/alp.yml       alp の設定。当日 matching_groups を書く
+scripts/slp.yml       slp の設定 (合計時間順・上位30件・rows examined 付き)
+s1/ s2/ s3/           サーバー別 /etc 設定 (task get-conf で取り込む)
+snippets/             nginx / MySQL / sysctl / Go のコピペ部品
+docs/                 当日の手順書
 ```
 
 ## 事前準備
@@ -25,7 +27,7 @@ snippets/         nginx / MySQL / sysctl / Go のコピペ部品
 ### 1台目 (s1)
 ```bash
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git pull origin main
-./setup.sh s1
+./scripts/setup.sh s1
 task get-conf                    # /etc/nginx, /etc/mysql を s1/etc に取り込む
 task collect                     # s1/collect.md にサーバーの状況をまとめる
 vi Taskfile.yml                  # APP_DIR / APP_BIN / APP_SERVICE を問題に合わせる
@@ -37,7 +39,7 @@ mysqldump -uisucon -p --all-databases | gzip > ~/backup.sql.gz   # 壊したと�
 ### 2台目以降 (s2, s3)
 ```bash
 cd ~ && git init -b main && git remote add origin git@github.com:<you>/<repo>.git && git fetch && git reset --hard origin/main && git branch -u origin/main
-./setup.sh s2 && task get-conf && task collect && git add s2 && git commit -m "s2 conf" && git push
+./scripts/setup.sh s2 && task get-conf && task collect && git add s2 && git commit -m "s2 conf" && git push
 ```
 
 ### 計測を入れる (最初の30分)
